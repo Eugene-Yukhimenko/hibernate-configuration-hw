@@ -3,6 +3,7 @@ package mate.academy;
 import mate.academy.lib.Injector;
 import mate.academy.model.Movie;
 import mate.academy.service.MovieService;
+import mate.academy.util.HibernateUtil;
 
 public class Main {
     private static final Injector injector = Injector.getInstance("mate.academy");
@@ -22,5 +23,8 @@ public class Main {
                         m -> System.out.println("Retrieved movie: " + m),
                         () -> System.out.println("Movie not found")
                 );
+        System.out.println(
+                HibernateUtil.class.getClassLoader().getResource("hibernate.cfg.xml")
+        );
     }
 }
