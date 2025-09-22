@@ -46,15 +46,15 @@ jobs:
             echo "Waiting... ($i/30)"
             sleep 2
           done
-          
-          mysql -h localhost -P 3306 -u root -p25101988Jjj -e "SHOW DATABASES;" || exit 1
 
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots clean verify
+      # Компіляція перед тестами - це важливо!
+      - name: Compile project
+        run: mvn --batch-mode clean compile test-compile
+
+      - name: Run tests
+        run: mvn --batch-mode test
         env:
-          MYSQL_URL: jdbc:mysql://localhost:3306/ticket_app?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
-          MYSQL_USER: root
-          MYSQL_PASSWORD: 25101988Jjj
+          MAVEN_OPTS: "-Xmx512m"
 
       - uses: mate-academy/auto-approve-action@v2
         if: ${{ github.event.pull_request && success() }}
