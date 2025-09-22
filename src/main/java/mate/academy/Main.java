@@ -1,5 +1,6 @@
 package mate.academy;
 
+import mate.academy.exception.DataProcessingException;
 import mate.academy.lib.Injector;
 import mate.academy.model.Movie;
 import mate.academy.service.MovieService;
@@ -18,11 +19,13 @@ public class Main {
         Movie savedMovie = movieService.add(movie);
         System.out.println("Saved movie: " + savedMovie);
 
-        movieService.get(savedMovie.getId())
-                .ifPresentOrElse(
-                        m -> System.out.println("Retrieved movie: " + m),
-                        () -> System.out.println("Movie not found")
-                );
+        try {
+            Movie retrieved = movieService.get(savedMovie.getId());
+            System.out.println("Retrieved movie: " + retrieved);
+        } catch (DataProcessingException e) {
+            System.out.println("Movie not found");
+        }
+
         System.out.println(
                 HibernateUtil.class.getClassLoader().getResource("hibernate.cfg.xml")
         );
