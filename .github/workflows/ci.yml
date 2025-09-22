@@ -7,7 +7,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Додаємо MySQL сервіс
     services:
       mysql:
         image: mysql:8.0
@@ -20,7 +19,7 @@ jobs:
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
           --health-start-period=30s
 
     steps:
@@ -36,21 +35,26 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Додаємо крок для перевірки підключення до MySQL (опціонально)
       - name: Wait for MySQL to be ready
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
-          timeout 60 bash -c 'until mysqladmin ping -h localhost -P 3306 -u root -p25101988Jjj --silent; do sleep 2; done'
-          echo "MySQL is ready!"
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysqladmin ping -h localhost -P 3306 -u root -p25101988Jjj --silent 2>/dev/null; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          
+          mysql -h localhost -P 3306 -u root -p25101988Jjj -e "SHOW DATABASES;" || exit 1
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -DskipTests=false verify
+        run: mvn --batch-mode --update-snapshots clean verify
         env:
-          # Встановлюємо змінні середовища для тестів
-          DB_URL: jdbc:mysql://localhost:3306/ticket_app?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
-          DB_USER: root
-          DB_PASSWORD: 25101988Jjj
+          MYSQL_URL: jdbc:mysql://localhost:3306/ticket_app?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+          MYSQL_USER: root
+          MYSQL_PASSWORD: 25101988Jjj
 
       - uses: mate-academy/auto-approve-action@v2
         if: ${{ github.event.pull_request && success() }}
