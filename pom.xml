@@ -68,14 +68,7 @@
                 <version>2.6</version>
                 <configuration>
                     <warName>${project.artifactId}</warName>
-                    <webResources>
-                        <resource>
-                            <filtering>true</filtering>
-                            <includes>
-                                <include>src/test/resources/hibernate.cfg.xml</include>
-                            </includes>
-                        </resource>
-                    </webResources>
+
                 </configuration>
             </plugin>
             <plugin>
